@@ -1,35 +1,34 @@
 import hashlib
 from .conection_database import inicializate_database
 
-db = inicializate_database()
+_db = None
+
+def get_db():
+    global _db
+    if _db is None:
+        _db = inicializate_database()
+    return _db
 
 # função de adição no database
 def add_database(nome_documento, colecao, dados):
-    # if "senha" in dados:                                                     # add
-    #     dados["senha"] = hashlib.sha256(dados["senha"].encode()).hexdigest() # add
+    db = get_db()
     novo_documento = db.collection(colecao).document(nome_documento)
     novo_documento.set(dados)
     print(f'{colecao} adicionados')
 
-# Visualização da coleção inteira
 def visualizate_collection_database(colecao):
+    db = get_db()
     produtos_ref = db.collection(colecao)
-    produtos =  produtos_ref.get()
-
+    produtos = produtos_ref.get()
     lista = []
-
     for produto in produtos:
         lista.append(produto.to_dict())
-
     return lista
 
-# Visualização de um documento específico dentro da coleção
 def visualizate_document_database(colecao, documento):
-
+    db = get_db()
     produto_ref = db.collection(colecao).document(documento)
-
-    produto =  produto_ref.get()
-
+    produto = produto_ref.get()
     if produto.exists:
         print(f'{produto.id} => {produto.to_dict()}')
         return produto.to_dict()
@@ -37,29 +36,23 @@ def visualizate_document_database(colecao, documento):
         print(f'O documento {documento} não encontrado na coleção {colecao}')
         return None
 
-# edição de um documento específico dentro da coleção
 def edit_database(colecao, documento, novos_dados):
-    
-    # Recuperar os dados do documento antigo
+    db = get_db()
     doc_ref = db.collection(colecao).document(documento)
     doc_snapshot = doc_ref.get()
-
     if doc_snapshot.exists:
-        
         doc_ref.update(novos_dados)
         print(f"O Documento {documento} da coleção {colecao} foi alterado com sucesso!")
-    
     else:
         print("Documento não encontrado.")
 
-# remoção de um documento dentro da colecao
 def delete_document_database(colecao, documento):
-
+    db = get_db()
     db.collection(colecao).document(documento).delete()
     print(f'{documento} removido da coleção {colecao}')
 
 def delete_collection_database(colecao):
-
+    db = get_db()
     db.collection(colecao).delete()
     print(f'coleção {colecao} removida')
 
