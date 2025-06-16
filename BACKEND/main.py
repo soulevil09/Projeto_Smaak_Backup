@@ -15,6 +15,8 @@ from datetime import datetime, timedelta
 import json
 import os
 
+print("TESTE_IGOR:", os.environ.get("TESTE_IGOR"))
+
 app = FastAPI()
 
 # Liberar acesso para o React Native (CORS)
