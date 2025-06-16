@@ -11,7 +11,7 @@ const Index = () => {
   const router = useRouter();
 
   const handleLogin = () => {
-    fetch("http://192.168.100.69:8000/login", {
+    fetch("https://projetosmaakbackup-production.up.railway.app/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -21,7 +21,17 @@ const Index = () => {
         password
       })
     })
-    .then(response => response.json())
+    .then(async response => {  
+      let data;  
+      try {  
+        data = await response.json();  
+      } catch (e) {  
+        // Se não for JSON, pega o texto  
+        const text = await response.text();  
+        throw new Error(text);  
+      }  
+      return data;  
+    })
     .then(data => {
       console.log(data);
       if (data.success) {        

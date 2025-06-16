@@ -7,8 +7,6 @@ from pydantic import BaseModel
 from banco.crud import delete_document_database, edit_database, visualizate_document_database, visualizate_collection_database, add_database
 import hashlib
 
-
-
 # Adicionar estes imports após os imports existentes
 import pandas as pd
 from prophet import Prophet
@@ -60,20 +58,24 @@ class PagamentoRequest(BaseModel):
     valor_total: str
     produtos: list[ProdutoPagamentoRequest]
 
-@app.post("/login")
-def login(data: LoginRequest):
-    user_data = visualizate_document_database("usuarios", data.username)
-
-    if not user_data:
-        print(user_data)
-        return {"success": False, "message": "Usuário não encontrado"}
-
-    # password_hash = hashlib.sha256(data.password.encode()).hexdigest()
-
-    if user_data.get("senha") == data.password:
-        return {"success": True, "message": "Login bem-sucedido"}
-    else:
-        return {"success": False, "message": "Senha incorreta"}
+@app.post("/login")  
+def login(data: LoginRequest, request: Request):  
+    try:  
+        user_data = visualizate_document_database("usuarios", data.username)  
+  
+        if not user_data:  
+            return {"success": False, "message": "Usuário não encontrado"}  
+  
+        # password_hash = hashlib.sha256(data.password.encode()).hexdigest()  
+  
+        if user_data.get("senha") == data.password:  
+            return {"success": True, "message": "Login bem-sucedido"}  
+        else:  
+            return {"success": False, "message": "Senha incorreta"}  
+    except Exception as e:  
+        print(f"Erro no login: {e}")  
+        # Retorne sempre JSON, mesmo em caso de erro  
+        return {"success": False, "message": f"Erro interno: {str(e)}"}
     
 @app.post("/produtos")
 def salvar_produto(data: ProdutoRequest):
